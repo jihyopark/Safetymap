@@ -1,0 +1,89 @@
+#logo{
+  position: absolute;
+  width: 12%;
+  left: 86%;
+  top: 0.9%;
+}
+body{
+  background-color: white;
+  font-size: 25px;
+}
+#message{
+  font-family: "맑은 고딕";
+  font-size: 40px;
+  border: 5px solid;
+}
+#level{
+  font-family: "맑은 고딕";
+  font-weight: bold;
+  font-size: 55px;
+  float: left;
+}
+#haedang{
+  font-family: "맑은 고딕";
+  font-weight: bold;
+  font-size: 45px;
+  margin-top: 7%;
+  clear: both;
+}
+#checkbox{
+  font-family: "맑은 고딕";
+  font-size: 40px;
+}
+input[type=checkbox]
+{
+  -ms-transform: scale(2); /* IE */
+  -moz-transform: scale(2); /* FF */
+  -webkit-transform: scale(2); /* Safari and Chrome */
+  -o-transform: scale(2); /* Opera */
+  padding: 10px;
+}
+#ptell{
+  font-family: "맑은 고딕";
+  font-weight: bold;
+  font-size: 40px;
+  margin-top: 7%;
+}
+#police{
+  font-family: "맑은 고딕";
+  font-size: 15px;
+}
+#tadd{
+  font-family: "맑은 고딕";
+  font-weight: bold;
+  font-size: 40px;
+}
+#toilet{
+  font-family: "맑은 고딕";
+  font-size: 12px;
+}
+#radd{
+  font-family: "맑은 고딕";
+  font-weight: bold;
+  font-size: 40px;
+}
+#rest{
+  font-family: "맑은 고딕";
+  font-size: 12px;
+  margin-bottom: 7%;
+}
+#copyright{
+  font-family: "맑은 고딕";
+  border: solid 2px;
+  border-color: black;
+  color: white;
+  background-color: DARKSLATEGRAY;
+  font-size: 25px;
+  text-align: center;
+}
+#refresh{
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  margin-top: 3%;
+  font-size: 30px;
+}
+#help{
+  width: 20%;
+  float: right;
+}

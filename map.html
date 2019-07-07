@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>우청안 지도</title>
+  <link rel="stylesheet" type="text/css" href="style2.css" />
+  <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=8a0ff18393d2991d605d5aafc62c2340"> </script>
+  <script type="text/javascript" src="data/data.js"> </script>
+  <script type="text/javascript">
+
+  //경도와 위도를 이용해 두 지점 사이의 거리를 알아내는 함수, 출처: http://hochulshin.com/distance-between-two-coordinates/
+  function distance(lat1, lon1, lat2, lon2) {
+    var R = 6371; // km
+    var dLat = (lat2-lat1)* Math.PI / 180;
+    var dLon = (lon2-lon1)* Math.PI / 180;
+    var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1* Math.PI / 180) * Math.cos(lat2* Math.PI / 180) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    var d = R * c;
+    d = d * 1000;
+    return d;
+  }
+
+  //위의 함수를 이용해 자료 중 나와 가장 가까이 있는 것을 알아내는 함수
+  function nearest(thing, lat, lon){
+    var a;
+    for(var i = 0; i < thing.length; i++){
+      d = distance(lat, lon, thing[i][0], thing[i][1]);
+      if(i!=0){
+        a = Math.min(a,d);
+      }else{
+        a = d;
+      }
+    }
+    return a;
+  }
+
+  //현재 자신의 위치를 알아내는 함수
+  function startMyLocation() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(core);
+    } else {
+      alert("지오로케이션이 지원되지 않습니다.");
+    }
+  }
+
+  // 내 위치와 아이콘, 메세지를 나타내주고 지수를 계산하는 함수
+  function core(myPosition) {
+    nowlat = myPosition.coords.latitude;
+    nowlon = myPosition.coords.longitude;
+
+    var nonbun = distance(nowlat, nowlon, 37.376655, 127.109719) //nonbun = 분당이 아님
+    if (nonbun > 10000){
+      nowlat = 37.390832;
+      nowlon = 127.073869;
+    }
+
+    map_option(nowlat, nowlon);
+
+    for(var i = 0; i < cctv.length; i++){
+      icon("image/CCTV아이콘.png", cctv[i][0], cctv[i][1]);
+    }
+    for(var i = 0; i < toilet.length; i++){
+      icon("image/화장실 아이콘.png", toilet[i][0], toilet[i][1]);
+    }
+    for(var i = 0; i < nonsmoking.length; i++){
+      icon("image/금연구역 아이콘.png", nonsmoking[i][0], nonsmoking[i][1]);
+    }
+    for(var i = 0; i < children.length; i++){
+      icon("image/어린이보호구역.png", children[i][0], children[i][1]);
+    }
+    for(var i = 0; i < rest.length; i++){
+      icon("image/무더위쉼터 아이콘.png", rest[i][0], rest[i][1]);
+    }
+    for(var i = 0; i < school.length; i++){
+      icon("image/학교 아이콘.png", school[i][0], school[i][1]);
+    }
+    for(var i = 0; i < youth.length; i++){
+      icon("image/청소년시설 아이콘1.png", youth[i][0], youth[i][1]);
+    }
+    for(var i = 0; i < police.length; i++){
+      icon("image/경찰 아이콘.png", police[i][0], police[i][1]);
+    }
+
+    var nearcctv = nearest(cctv, nowlat, nowlon);
+    var nearnonsmoking = nearest(nonsmoking, nowlat, nowlon);
+    var nearschool = nearest(school, nowlat, nowlon);
+    var nearchildren = nearest(children, nowlat, nowlon);
+    var nearyouth = nearest(youth, nowlat, nowlon);
+    var nearpolice = nearest(police, nowlat, nowlon);
+    var jisoo = 0
+    var date = new Date();
+    var day = date.getDay(); // 0 일요일, 1 월요일
+    var hour = date.getHours(); // 24시간 기준
+    if (nearcctv <= 20){
+      jisoo = jisoo + 7;
+    }else if (nearcctv <= 30){
+      jisoo = jisoo + 6;
+    }else if (nearcctv <= 40){
+      jisoo = jisoo + 5;
+    }
+
+    if (nearnonsmoking <= 15){
+      jisoo = jisoo + 5;
+    }else if (nearnonsmoking <= 50){
+      jisoo = jisoo + 4;
+    }else if (nearnonsmoking <= 70){
+      jisoo = jisoo + 3;
+    }
+
+    if (nearschool <= 100){
+      jisoo = jisoo + 4;
+    }else if (nearschool <= 200){
+      jisoo = jisoo + 3;
+    }
+    if (nearschool <= 50){ //50m 이내면
+      if (day == 0 || day == 1){ //주말이면
+        if (hour >= 20 || hour <= 5){ //20시에서 5시 이내면
+          jisoo = jisoo - 2;
+        }
+      }else if (hour >= 17 || hour <= 5){ //주말이 아니니 주중->17시에서 5시 이내면
+        jisoo = jisoo - 2;
+      }
+    }
+
+    if (nearchildren <= 50){
+      jisoo = jisoo + 5;
+    }else if (nearchildren <= 100){
+      jisoo = jisoo + 4;
+    }else if (nearchildren <= 150){
+      jisoo = jisoo + 3;
+    }
+
+    if (nearyouth <= 500){
+      jisoo = jisoo + 4;
+    }else if (nearyouth <= 700){
+      jisoo = jisoo + 3;
+    }else if (nearyouth <= 1000){
+      jisoo = jisoo + 2;
+    }
+    if (nearyouth <= 10){
+      if (hour >= 20 || hour <= 5){
+      jisoo = jisoo - 2;
+      }
+    }
+
+    if (nearpolice <= 3000){
+      jisoo = jisoo + 7;
+    }else if (nearpolice <= 5000){
+      jisoo = jisoo + 5;
+    }else if (nearpolice <= 7000){
+      jisoo = jisoo + 3;
+    }
+
+    if (jisoo <= 0){
+      jisoo = 0;
+    }
+    if (jisoo >= 25){
+      jisoo = 25;
+    }
+
+    document.getElementById("range").src = "image/rangebar/rangebar" + jisoo + ".png"; //0~25까지 있는 rangebar 이미지를 불러옴
+
+    if(jisoo <= 5) {
+      document.getElementById("message").innerHTML = "삐용삐용!! 너무 위험해요!!!";
+      document.getElementById("message").style.borderColor = "red";
+      icon("image/icon_red.png", nowlat, nowlon);
+    }
+    else if(jisoo <= 10) {
+      document.getElementById("message").innerHTML = "당신은 좀 위험할수도 있습니다.";
+      document.getElementById("message").style.borderColor = "orange";
+      icon("image/icon_orange.png", nowlat, nowlon);
+    }
+    else if(jisoo <= 15) {
+      document.getElementById("message").innerHTML = "보통보통(방심은 금물!)";
+      document.getElementById("message").style.borderColor = "yellow";
+      icon("image/icon_yellow.png", nowlat, nowlon);
+    }
+    else if(jisoo <= 20) {
+      document.getElementById("message").innerHTML = "당신은 꽤 안전합니다.";
+      document.getElementById("message").style.borderColor = "yellowgreen";
+      icon("image/icon_greenyellow.png", nowlat, nowlon);
+    }
+    else {
+      document.getElementById("message").innerHTML = "당신은 매우 안전합니다!!";
+      document.getElementById("message").style.borderColor = "limegreen";
+      icon("image/icon_limegreen.png", nowlat, nowlon);
+    }
+    document.getElementById("level").innerHTML = "안전지수 : " + jisoo;
+  }
+  </script>
+</head>
+<body>
+  <script type="text/javascript">
+
+    var map;
+
+    // Daum 지도 API를 불러 나타내주는 함수
+    // "http://apis.map.daum.net/web/sample/basicMap/" 에서 가져옴
+    function map_option(lat, lon) {
+      var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+          mapOption = {
+            center: new daum.maps.LatLng(lat, lon), // 지도의 중심좌표
+            level: 4 // 지도의 확대 레벨
+          };
+      map = new daum.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+    }
+
+    // 아이콘을 불러와 지도 위에 나타내는 함수
+    // "http://apis.map.daum.net/web/sample/basicMarkerImage/" 에서 가져와 수정함
+    function icon(png, lat, lon) {
+      var imageSrc = png, // 마커이미지의 주소입니다
+          imageSize = new daum.maps.Size(55, 55), // 마커이미지의 크기입니다
+          imageOption = {offset: new daum.maps.Point(27.5, 27.5)}; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
+    // 마커의 이미지정보를 가지고 있는 마커이미지를 생성합니다
+      var markerImage = new daum.maps.MarkerImage(imageSrc, imageSize, imageOption),
+          markerPosition = new daum.maps.LatLng(lat, lon); // 마커가 표시될 위치입니다
+    // 마커를 생성합니다
+      var marker = new daum.maps.Marker({
+          position: markerPosition,
+          image: markerImage // 마커이미지 설정
+        });
+      marker.setMap(map);
+    }
+
+  </script>
+  <p id = "message"> </p>
+  <img id = "logo" src="image/logo_small.png">
+  <div id="map"></div>
+  <span id = "level">안전지수 :</span>
+  <button id="refresh" onclick="startMyLocation();">Refresh</button>
+  <img id = "range">
+  <div id = "touch2" ontouchstart = "window.location.href = 'https://safetymap.co.kr:40001/detail.html';" onclick = "window.location.href = 'https://safetymap.co.kr:40001/detail.html';"> 이곳을 터치하면 자세한 내용을 보실수 있습니다 </div>
+  </div>
+
+  <script>
+    var nowlat;
+    var nowlon;
+    startMyLocation();
+  </script>
+
+</body>
+</html>

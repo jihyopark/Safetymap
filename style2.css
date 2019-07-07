@@ -1,0 +1,44 @@
+#logo{
+  position: absolute;
+  width: 12%;
+  left:86%;
+  top: 0.9%;
+}
+#message{
+  font-family: "맑은 고딕";
+  font-size: 40px;
+  border: 5px solid;
+}
+#level{
+  font-family: "맑은 고딕";
+  font-size: 70px;
+  float: left;
+}
+#touch2{
+  font-size: 40px;
+  border: solid 2px black;
+  font-family: "맑은 고딕";
+  width: 99.5%;
+  height: 7%;
+  text-align: center;
+}
+#map{
+  margin: auto;
+  border: 2px solid black;
+  width: 99.5%;
+  height: 1000px;
+  z-index: 2;
+}
+#refresh{
+  float: right;
+  width: 30%;
+  height: 80px;
+  font-size: 35px;
+  z-index: 3;
+  margin-top: 20px;
+}
+#range{
+  height: 20%;
+  width: 100%;
+  clear: both;
+}

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>우청안 상세 안내</title>
+  <link rel="stylesheet" type="text/css" href="style3.css" />
+  <script type="text/javascript" src = "data/data.js"></script>
+  <script type="text/javascript">
+    function distance(lat1, lon1, lat2, lon2) { //경도와 위도를 이용해 두 지점 사이의 거리를 알아내는 함수
+      var R = 6371; // km
+      var dLat = (lat2-lat1)* Math.PI / 180;
+      var dLon = (lon2-lon1)* Math.PI / 180;
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1* Math.PI / 180) * Math.cos(lat2* Math.PI  / 180) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      var d = R * c;
+      d = d * 1000;
+      return d;
+    }
+    function nearest(thing, lat, lon){ //위의 함수를 이용해 자료 중 나와 가장 가까이 있는 것을 알아내는 함수
+      var a;
+      for(var i = 0; i < thing.length; i++){
+        d = distance(lat, lon, thing[i][0], thing[i][1]);
+        if(i!=0){
+          a = Math.min(a,d);
+        }else{
+          a = d;
+        }
+      }
+      return a;
+    }
+    function startMyLocation() { //현재 자신의 위치를 알아내는 함수
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(core);
+      } else {
+        alert("지오로케이션이 지원되지 않습니다.");
+      }
+    }
+    function core(myPosition) {
+      nowlat = myPosition.coords.latitude;
+      nowlon = myPosition.coords.longitude;
+
+      var nonbun = distance(nowlat, nowlon, 37.376655, 127.109719) //nonbun = 분당이 아님
+
+      if (nonbun > 10000){ //분당의 한가운데에서 10km이상 멀어지면 운중중학교로 감
+        nowlat = 37.390832;
+        nowlon = 127.073869;
+      }
+      
+      var nowlat;
+      var nowlon;
+      var nearcctv = nearest(cctv, nowlat, nowlon);
+      var nearnonsmoking = nearest(nonsmoking, nowlat, nowlon);
+      var nearschool = nearest(school, nowlat, nowlon);
+      var nearchildren = nearest(children, nowlat, nowlon);
+      var nearyouth = nearest(youth, nowlat, nowlon);
+      var nearpolice = nearest(police, nowlat, nowlon);
+      var jisoo = 0;
+      document.getElementById("checkbox").innerHTML =  "";
+      if (nearcctv <= 20){
+        jisoo = jisoo + 7;
+        document.getElementById("checkbox").innerHTML =  "<input type='checkbox' checked = 'true' disabled = 'true'/> CCTV : 20m 이내 (+7)<br>";
+      }else if (nearcctv <= 30){
+        jisoo = jisoo + 6;
+        document.getElementById("checkbox").innerHTML =  "<input type='checkbox' checked = 'true' disabled = 'true'/> CCTV : 30m 이내 (+6)<br>";
+      }else if (nearcctv <= 40){
+        jisoo = jisoo + 5;
+        document.getElementById("checkbox").innerHTML =  "<input type='checkbox' checked = 'true' disabled = 'true'/> CCTV : 40m 이내 (+5)<br>";
+      }
+
+
+      if (nearnonsmoking <= 15){
+        jisoo = jisoo + 5;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  금연구역 : 안 (+5)<br>";
+      }else if (nearnonsmoking <= 50){
+        jisoo = jisoo + 4;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  금연구역 : 50m 이내 (+4)<br>";
+      }else if (nearnonsmoking <= 70){
+        jisoo = jisoo + 3;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  금연구역 : 70m 이내 (+3)<br>";
+      }
+
+
+      if (nearschool <= 100){
+        jisoo = jisoo + 4;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  학교 : 100m 이내 (+4)<br>";
+      }else if (nearschool <= 200){
+        jisoo = jisoo + 3;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  학교 : 200m 이내 (+3)<br>";
+      }
+      if (nearschool <= 50){ //50m 이내면
+        if (day == 0 || day == 1){ //주말이면
+          if (hour >= 20 || hour <= 5){ //20시에서 5시 이내면
+            jisoo = jisoo - 2;
+            document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  학교 : 50m 이내, 주말 20시 ~ 새벽 5시 사이 (-2)<br>";
+          }
+        }else if (hour >= 17 || hour <= 5){ //주말이 아니니 주중->17시에서 5시 이내면
+          jisoo = jisoo - 2;
+          document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  학교 : 50m 이내, 주말 20시 ~ 새벽 5시 사이 (-2)<br>";
+        }
+      }
+
+
+      if (nearchildren <= 50){
+        jisoo = jisoo + 5;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  어린이 보호구역 : 50m 이내 (+5)<br>";
+      }else if (nearchildren <= 100){
+        jisoo = jisoo + 4;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  어린이 보호구역 : 100m 이내 (+4)<br>";
+      }else if (nearchildren <= 150){
+        jisoo = jisoo + 3;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  어린이 보호구역 : 150m 이내 (+3)<br>";
+      }
+
+
+      if (nearyouth <= 500){
+        jisoo = jisoo + 4;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  청소년시설 : 500m 이내 (+3)<br>";
+      }else if (nearyouth <= 700){
+        jisoo = jisoo + 3;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  청소년시설 : 700m 이내 (+2)<br>";
+      }else if (nearyouth <= 1000){
+        jisoo = jisoo + 2;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  청소년시설 : 1km 이내 (+1)<br>";
+      }
+      if (nearyouth <= 10){
+        if (hour >= 20 || hour <= 5){
+        jisoo = jisoo - 2;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  청소년시설 : 10m 이내, 20시 ~ 새벽 5시 사이 (-2)<br>";
+        }
+      }
+
+
+      if (nearpolice <= 3000){
+        jisoo = jisoo + 7;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  경찰서 : 3km 이내 (+7)<br>";
+      }else if (nearpolice <= 5000){
+        jisoo = jisoo + 5;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  경찰서 : 5km 이내 (+5)<br>";
+      }else if (nearpolice <= 7000){
+        jisoo = jisoo + 3;
+        document.getElementById("checkbox").innerHTML +=  "<input type='checkbox' checked = 'true' disabled = 'true'/>  경찰서 : 7km 이내 (+3)<br>";
+      }
+
+
+      if(jisoo <= 5) {
+        document.getElementById("message").innerHTML = "삐용삐용!! 너무 위험해요!!!";
+        document.getElementById("message").style.borderColor = "red";
+      }else if(jisoo <= 10) {
+        document.getElementById("message").innerHTML = "당신은 좀 위험할수도 있습니다.";
+        document.getElementById("message").style.borderColor = "orange";
+      }else if(jisoo <= 15) {
+        document.getElementById("message").innerHTML = "보통보통(방심은 금물!)";
+        document.getElementById("message").style.borderColor = "yellow";
+      }else if(jisoo <= 20) {
+        document.getElementById("message").innerHTML = "당신은 꽤 안전합니다.";
+        document.getElementById("message").style.borderColor = "yellowgreen";
+      }else {
+        document.getElementById("message").innerHTML = "당신은 매우 안전합니다!!";
+        document.getElementById("message").style.borderColor = "limegreen";
+      }
+
+      if (jisoo <= 0){ //지수가 0 이하면 0으로 표시
+        jisoo = 0;
+      }
+      if (jisoo >= 25){ //지수가 25 이상이면 25로 표시
+        jisoo = 25;
+      }
+
+      document.getElementById("level").innerHTML = "안전지수 : " + jisoo;//안전지수를 표시
+
+
+
+      document.getElementById("police").innerHTML = "";
+      for (var i = 0; i < police.length; i++){
+        var eidpolice = distance(nowlat, nowlon, police[i][0], police[i][1]);//eid = everything in distance
+        if(eidpolice < 5000){
+          document.getElementById("police").innerHTML += police[i][3] + " : " + police[i][2] + "<br>";
+        }
+      }
+      document.getElementById("toilet").innerHTML = "";
+      for (var i = 0; i < toilet.length; i++){
+        var eidtoilet = distance(nowlat, nowlon, toilet[i][0], toilet[i][1]);//eid = everything in distance
+        if(eidtoilet < 100){
+          document.getElementById("toilet").innerHTML += toilet[i][2] + "<br>";
+        }
+      }
+      document.getElementById("rest").innerHTML = "";
+      for (var i = 0; i < rest.length; i++){
+        var eidrest = distance(nowlat, nowlon, rest[i][0], rest[i][1]);//eid = everything in distance
+        if(eidrest < 100){
+          document.getElementById("rest").innerHTML += rest[i][2] + "<br>";
+        }
+      }
+    }
+  </script>
+</head>
+<body>
+  <p id = "message"></p>
+  <img id = "logo" src="image/logo_small.png">
+  <div id = "level"></div>
+  <img id = "help" ontouchstart = "window.location.href = 'https://safetymap.co.kr:40001/help.html';" onclick = "window.location.href = 'https://safetymap.co.kr:40001/help.html';" src="image/help.png"/>
+  <div id = "haedang">해당사항</div>
+  <p id = "checkbox">
+  </p>
+
+  <p id = "ptell">5km 내 경찰서 전화번호</p>
+  <p id = "police"><br>
+  </p>
+
+  <p id = "tadd">100m 내 공중화장실 주소</p>
+  <p id = "toilet"><br>
+  </p>
+
+  <p id = "radd">100m 내 무더위쉼터 주소</p>
+  <p id = "rest"><br>
+  </p>
+
+  <div id = "copyright"> © 곽민경, 박지효<br>
+     이 사이트는 곽민경과 박지효에 <br>
+     의해 제작되었습니다<br>
+     E-mail : webmaster@safetymap.co.kr
+  </div>
+
+  <button id = "refresh" onclick = "startMyLocation();" ontouchstart = "startMyLocation();">Refresh</button>
+  <script type="text/javascript">
+    startMyLocation();
+  </script>
+</body>
+</html>
